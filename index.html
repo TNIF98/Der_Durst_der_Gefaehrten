@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="de">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Der Durst der Gefährten</title>
+	<style>
+		:root{--bg:#0f1724;--card:#0b1220;--accent:#ffcc00;--text:#e6eef8}
+		html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#071025 0%,#0b1422 100%);color:var(--text);display:flex;align-items:center;justify-content:center}
+		.container{width:960px;max-width:96%;padding:28px}
+		header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+		h1{font-size:28px;margin:0;color:var(--accent)}
+		.controls{display:flex;gap:8px}
+		button{background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;cursor:pointer}
+		button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+
+		.board{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;background:rgba(255,255,255,0.02);padding:12px;border-radius:12px}
+		.cell{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));min-height:86px;display:flex;align-items:center;justify-content:center;border-radius:8px;position:relative;user-select:none;cursor:pointer;font-size:14px;padding:8px;text-align:center}
+		.cell .content{pointer-events:none}
+		.cell.marked::after{content:'X';position:absolute;inset:6px;display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--accent);font-weight:800}
+
+		.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:40;visibility:hidden;opacity:0;transition:opacity .2s}
+		.overlay.show{visibility:visible;opacity:1}
+		.bingoCard{background:var(--card);padding:36px 48px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.6);text-align:center}
+		.bingoCard h2{margin:0;font-size:72px;letter-spacing:6px;color:var(--accent)}
+		.bingoCard p{margin-top:8px;color:#cfe6ff}
+
+		.small{font-size:12px;color:#9fb3d6}
+		footer{margin-top:12px;color:#93a9c9;font-size:13px}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1>Der Durst der Gefährten</h1>
+			<div class="controls">
+				<button id="fillBtn">Zufällig füllen</button>
+				<button id="clearBtn" class="secondary">Markierungen zurücksetzen</button>
+				<button id="resetBtn" class="secondary">Leeres Feld</button>
+			</div>
+		</header>
+
+		<main>
+			<div id="board" class="board" aria-label="Bingo Spielfeld"></div>
+			<footer>
+				<div class="small">Klicke auf ein Feld, um es zu markieren. Klicke nochmal, um die Markierung zu entfernen.</div>
+			</footer>
+		</main>
+	</div>
+
+	<div id="overlay" class="overlay" role="dialog" aria-hidden="true">
+		<div class="bingoCard">
+			<h2>BINGO!</h2>
+			<p>Glückwunsch — du hast 5 in einer Reihe.</p>
+			<div style="margin-top:14px"><button id="closeOverlay">Weiter spielen</button></div>
+		</div>
+	</div>
+
+	<script>
+		// Pool mit ~50 Beispielen (kann angepasst werden)
+		const pool = [
+			'Bier', 'Wein', 'Wasser', 'Radler', 'Cidre', 'Met', 'Schorle', 'Whisky', 'Gin', 'Rum',
+			'Wodka', 'Limonade', 'Tee', 'Kaffee', 'Cola', 'Sprite', 'Orangensaft', 'Apfelsaft', 'Traubensaft', 'Smoothie',
+			'Saftschorle', 'Eistee', 'Mineralwasser', 'Prosecco', 'Sekt', 'Cocktail', 'Longdrink', 'Shots', 'Mocktail', 'Bitter',
+			'Likör', 'Bockbier', 'Pils', 'Weizen', 'Stout', 'Porter', 'Bock', 'Kombucha', 'Aperitif', 'Digestif',
+			'Holunder', 'Ginger Ale', 'Tonic', 'Mate', 'Aqua', 'Helles', 'Altbier', 'Kräuter', 'Fruchtmix', 'Zitrone'
+		];
+
+		const boardEl = document.getElementById('board');
+		const overlay = document.getElementById('overlay');
+		const fillBtn = document.getElementById('fillBtn');
+		const clearBtn = document.getElementById('clearBtn');
+		const resetBtn = document.getElementById('resetBtn');
+		const closeOverlay = document.getElementById('closeOverlay');
+
+		const SIZE = 5;
+
+		// Erzeuge 5x5 Zellen (anfangs leer)
+		function createEmptyBoard() {
+			boardEl.innerHTML = '';
+			for (let r = 0; r < SIZE; r++) {
+				for (let c = 0; c < SIZE; c++) {
+					const idx = r * SIZE + c;
+					const cell = document.createElement('div');
+					cell.className = 'cell';
+					cell.dataset.index = idx;
+					cell.dataset.row = r;
+					cell.dataset.col = c;
+					const content = document.createElement('div');
+					content.className = 'content';
+					content.textContent = '';
+					cell.appendChild(content);
+					cell.addEventListener('click', onCellClick);
+					boardEl.appendChild(cell);
+				}
+			}
+		}
+
+		function onCellClick(e) {
+			const cell = e.currentTarget;
+			cell.classList.toggle('marked');
+			checkWin();
+		}
+
+		function getMarkedMatrix() {
+			const marked = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
+			document.querySelectorAll('.cell').forEach(c => {
+				const r = Number(c.dataset.row);
+				const col = Number(c.dataset.col);
+				if (c.classList.contains('marked')) marked[r][col] = true;
+			});
+			return marked;
+		}
+
+		function checkWin() {
+			const m = getMarkedMatrix();
+
+			// Prüfe Zeilen
+			for (let r = 0; r < SIZE; r++) {
+				if (m[r].every(Boolean)) return showBingo();
+			}
+
+			// Prüfe Spalten
+			for (let c = 0; c < SIZE; c++) {
+				let ok = true;
+				for (let r = 0; r < SIZE; r++) if (!m[r][c]) { ok = false; break; }
+				if (ok) return showBingo();
+			}
+
+			// Diagonalen
+			let diag1 = true, diag2 = true;
+			for (let i = 0; i < SIZE; i++) {
+				if (!m[i][i]) diag1 = false;
+				if (!m[i][SIZE - 1 - i]) diag2 = false;
+			}
+			if (diag1 || diag2) return showBingo();
+		}
+
+		function showBingo(){
+			overlay.classList.add('show');
+			overlay.setAttribute('aria-hidden','false');
+		}
+
+		function hideBingo(){
+			overlay.classList.remove('show');
+			overlay.setAttribute('aria-hidden','true');
+		}
+
+		// Fülle zufällig aus dem Pool (einmal pro Feld)
+		function fillRandom() {
+			const poolCopy = [...pool];
+			// Mische Pool
+			for (let i = poolCopy.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[poolCopy[i], poolCopy[j]] = [poolCopy[j], poolCopy[i]];
+			}
+			const cells = document.querySelectorAll('.cell');
+			cells.forEach((cell, i) => {
+				const txt = poolCopy[i % poolCopy.length] || '';
+				cell.querySelector('.content').textContent = txt;
+				cell.classList.remove('marked');
+			});
+		}
+
+		function clearMarks() {
+			document.querySelectorAll('.cell').forEach(c => c.classList.remove('marked'));
+		}
+
+		function resetBoard() {
+			createEmptyBoard();
+		}
+
+		// Events
+		fillBtn.addEventListener('click', () => { fillRandom(); hideBingo(); });
+		clearBtn.addEventListener('click', () => { clearMarks(); hideBingo(); });
+		resetBtn.addEventListener('click', () => { resetBoard(); hideBingo(); });
+		closeOverlay.addEventListener('click', () => { hideBingo(); });
+
+		// Init
+		createEmptyBoard();
+	</script>
+</body>
+</html>
