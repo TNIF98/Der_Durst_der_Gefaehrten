@@ -6,32 +6,55 @@
     <title>Der Durst der Gefährten</title>
     <style>
         :root{--bg:#0f1724;--card:#0b1220;--accent:#ffcc00;--text:#e6eef8}
-        html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#071025 0%,#0b1422 100%);color:var(--text);display:flex;align-items:center;justify-content:center}
+        html,body{
+            height:100%;margin:0;
+            font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+            background:linear-gradient(180deg,#071025 0%,#0b1422 100%);
+            color:var(--text);
+            display:flex;align-items:center;justify-content:center
+        }
         .container{width:960px;max-width:96%;padding:28px}
-        header{display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:18px;gap:12px}
-        h1{font-size:28px;margin:0;color:var(--accent)}
-        .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-        button{background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px}
-        button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
-
-        .board{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;background:rgba(255,255,255,0.02);padding:12px;border-radius:12px}
-        .cell{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));min-height:86px;display:flex;align-items:center;justify-content:center;border-radius:8px;position:relative;user-select:none;cursor:pointer;font-size:14px;padding:8px;text-align:center}
+        header{
+            display:flex;flex-direction:column;
+            align-items:center;justify-content:center;
+            margin-bottom:18px;gap:12px
+        }
+        h1{font-size:28px;margin:0;color:var(--accent);text-align:center}
+        
+        .board{
+            display:grid;grid-template-columns:repeat(5,1fr);
+            gap:8px;background:rgba(255,255,255,0.02);
+            padding:12px;border-radius:12px
+        }
+        .cell{
+            background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+            min-height:86px;display:flex;align-items:center;justify-content:center;
+            border-radius:8px;position:relative;user-select:none;cursor:pointer;
+            font-size:14px;padding:8px;text-align:center
+        }
         .cell .content{pointer-events:none;font-size:11px;line-height:1.2}
-        .cell.marked::after{content:'X';position:absolute;inset:6px;display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--accent);font-weight:800}
+        .cell.marked::after{
+            content:'X';position:absolute;inset:6px;display:flex;align-items:center;justify-content:center;
+            font-size:48px;color:var(--accent);font-weight:800
+        }
 
-        .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:40;visibility:hidden;opacity:0;transition:opacity .2s}
+        .overlay{
+            position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+            background:rgba(2,6,23,0.6);z-index:40;visibility:hidden;opacity:0;transition:opacity .2s
+        }
         .overlay.show{visibility:visible;opacity:1}
-        .bingoCard{background:var(--card);padding:36px 48px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.6);text-align:center;max-width:90vw}
+        .bingoCard{
+            background:var(--card);padding:36px 48px;border-radius:16px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.6);text-align:center;max-width:90vw
+        }
         .bingoCard h2{margin:0;font-size:72px;letter-spacing:6px;color:var(--accent)}
         .bingoCard p{margin-top:8px;color:#cfe6ff;font-size:14px}
 
         .toast-container{position:relative;height:80px;margin:20px 0}
         .toast-animation{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
         .toast-animation.show{display:flex;justify-content:center;align-items:flex-end;gap:20px}
-        
         .beer{font-size:60px;animation:beerClink 0.8s ease-in-out}
         .aperol{font-size:60px;animation:aperolClink 0.8s ease-in-out}
-        
         @keyframes beerClink{
             0%{transform:translateX(0) rotateZ(0deg);opacity:1}
             50%{transform:translateX(-15px) rotateZ(-15deg);opacity:1}
@@ -46,34 +69,38 @@
         .small{font-size:12px;color:#9fb3d6}
         footer{margin-top:12px;color:#93a9c9;font-size:13px}
 
-        /* --- Getränke-Counter Styling --- */
+        /* --- Getränke-Counter --- */
         .drink-counter{
             margin-top:12px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            gap:10px;
-            flex-wrap:wrap;
-            color:#cfe6ff;
+            display:flex;align-items:center;justify-content:center;
+            gap:10px;flex-wrap:wrap;color:#cfe6ff
         }
         .drink-counter .count{
-            min-width:42px;
-            text-align:center;
-            font-weight:700;
-            color:var(--accent);
-            background:rgba(255,255,255,0.04);
-            border:1px solid rgba(255,255,255,0.06);
-            padding:6px 10px;
-            border-radius:8px;
+            min-width:42px;text-align:center;font-weight:700;color:var(--accent);
+            background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
+            padding:6px 10px;border-radius:8px
+        }
+        /* Grüner Add-Button */
+        #drinkAddBtn{
+            background:#16a34a; /* grün */
+            border:1px solid rgba(0,0,0,0.2);
+            color:#0b1b0f;
+            font-weight:600;
+            padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;
+            display:flex;align-items:center;gap:8px;
+            box-shadow:0 1px 0 rgba(255,255,255,0.08) inset, 0 2px 10px rgba(0,0,0,0.25);
+        }
+        #drinkAddBtn:hover{background:#17b04f}
+        #drinkAddBtn:active{transform:translateY(1px)}
+        #drinkIcon{
+            font-size:18px; /* Bier daneben */
         }
 
         /* Smartphone / Mobile Devices */
         @media (max-width: 768px) {
             .container{padding:12px;width:100%}
-            header{margin-bottom:12px;gap:8px}
-            h1{font-size:20px}
-            .controls{gap:6px}
-            button{padding:6px 8px;font-size:12px}
+            header{margin-bottom:12px;gap:8px;align-items:center} /* wieder zentriert */
+            h1{font-size:28px} /* größer auf Handy */
             
             .board{gap:6px;padding:8px}
             .cell{min-height:70px;font-size:11px;padding:6px}
@@ -86,16 +113,14 @@
 
         @media (max-width: 480px) {
             .container{padding:8px}
-            h1{font-size:16px}
-            .controls{width:100%;flex-direction:column;gap:4px}
-            button{width:100%;padding:5px 6px;font-size:11px}
+            header{flex-direction:column;align-items:center} /* zentriert lassen */
+            h1{font-size:30px} /* noch etwas größer für sehr kleine Geräte */
             
             .board{gap:4px;padding:6px}
             .cell{min-height:60px;font-size:10px;padding:4px}
             .cell .content{font-size:9px}
             .cell.marked::after{font-size:28px}
             
-            header{flex-direction:column;align-items:flex-start}
             footer{font-size:10px;margin-top:6px}
             .small{font-size:10px}
             
@@ -109,19 +134,18 @@
     <div class="container">
         <header>
             <h1>Der Durst der Gefährten</h1>
-            <div class="controls">
-                <button id="clearBtn" class="secondary">Markierungen zurücksetzen</button>
-            </div>
+            <!-- Reset-Button entfernt -->
         </header>
 
         <main>
             <div id="board" class="board" aria-label="Bingo Spielfeld"></div>
 
-            <!-- >>> Getränke-Counter unter dem Bingo-Feld <<< -->
+            <!-- Getränke-Counter unter dem Bingo-Feld -->
             <div class="drink-counter" aria-live="polite">
                 <span>Getränke:</span>
                 <span id="drinkCount" class="count">0</span>
                 <button id="drinkAddBtn" aria-label="Ein Getränk hinzufügen">+1 Getränk</button>
+                <span id="drinkIcon" aria-hidden="true">🍺</span>
             </div>
 
             <footer>
@@ -192,18 +216,16 @@
 
         const boardEl = document.getElementById('board');
         const overlay = document.getElementById('overlay');
-        const clearBtn = document.getElementById('clearBtn');
         const drinkBtn = document.getElementById('drinkBtn');
         const closeOverlay = document.getElementById('closeOverlay');
         const toastAnimation = document.getElementById('toastAnimation');
 
-        // >>> Elemente für den Getränke-Counter
+        // Getränke-Counter
         const drinkAddBtn = document.getElementById('drinkAddBtn');
         const drinkCountEl = document.getElementById('drinkCount');
 
         const SIZE = 5;
 
-        // --- Getränke-Counter Logik ---
         let drinkCount = Number(localStorage.getItem('drinkCount') || 0);
 
         function renderDrinkCount() {
@@ -303,27 +325,14 @@
             });
         }
 
-        function clearMarks() {
-            document.querySelectorAll('.cell').forEach(c => c.classList.remove('marked'));
-        }
-
-        function resetBoard() {
-            createEmptyBoard();
-            fillRandom();
-        }
-
         // Events
-        clearBtn.addEventListener('click', () => { clearMarks(); hideBingo(); });
-
-        // Klick auf "Getränk trinken" in der Bingo-Overlay → nur Animation
         drinkBtn.addEventListener('click', () => { 
             toastAnimation.classList.add('show');
             setTimeout(() => { toastAnimation.classList.remove('show'); }, 900);
         });
-
         closeOverlay.addEventListener('click', () => { hideBingo(); });
 
-        // >>> Getränke-Counter Events
+        // Getränke-Counter Event
         drinkAddBtn.addEventListener('click', () => addDrink(1));
 
         // Init
