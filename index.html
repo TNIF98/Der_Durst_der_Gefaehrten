@@ -8,7 +8,7 @@
 		:root{--bg:#0f1724;--card:#0b1220;--accent:#ffcc00;--text:#e6eef8}
 		html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#071025 0%,#0b1422 100%);color:var(--text);display:flex;align-items:center;justify-content:center}
 		.container{width:960px;max-width:96%;padding:28px}
-		header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap}
+		header{display:flex;align-items:center;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
 		h1{font-size:28px;margin:0;color:var(--accent);flex:1}
 		.controls{display:flex;gap:8px;flex-wrap:wrap}
 		button{background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px}
@@ -24,6 +24,24 @@
 		.bingoCard{background:var(--card);padding:36px 48px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.6);text-align:center;max-width:90vw}
 		.bingoCard h2{margin:0;font-size:72px;letter-spacing:6px;color:var(--accent)}
 		.bingoCard p{margin-top:8px;color:#cfe6ff;font-size:14px}
+
+		.toast-container{position:relative;height:80px;margin:20px 0}
+		.toast-animation{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+		.toast-animation.show{display:flex;justify-content:center;align-items:flex-end;gap:20px}
+		
+		.beer{font-size:60px;animation:beerClink 0.8s ease-in-out}
+		.aperol{font-size:60px;animation:aperolClink 0.8s ease-in-out}
+		
+		@keyframes beerClink{
+			0%{transform:translateX(0) rotateZ(0deg);opacity:1}
+			50%{transform:translateX(-15px) rotateZ(-15deg);opacity:1}
+			100%{transform:translateX(0) rotateZ(0deg);opacity:1}
+		}
+		@keyframes aperolClink{
+			0%{transform:translateX(0) rotateZ(0deg);opacity:1}
+			50%{transform:translateX(15px) rotateZ(15deg);opacity:1}
+			100%{transform:translateX(0) rotateZ(0deg);opacity:1}
+		}
 
 		.small{font-size:12px;color:#9fb3d6}
 		footer{margin-top:12px;color:#93a9c9;font-size:13px}
@@ -72,7 +90,6 @@
 			<h1>Der Durst der Gefährten</h1>
 			<div class="controls">
 				<button id="clearBtn" class="secondary">Markierungen zurücksetzen</button>
-				<button id="resetBtn" class="secondary">Neue Runde</button>
 			</div>
 		</header>
 
@@ -88,7 +105,14 @@
 		<div class="bingoCard">
 			<h2>BINGO!</h2>
 			<p>Glückwunsch — du hast 5 in einer Reihe.</p>
-			<div style="margin-top:14px"><button id="closeOverlay">Weiter spielen</button></div>
+			<div class="toast-container">
+				<div id="toastAnimation" class="toast-animation">
+					<span class="beer">🍺</span>
+					<span class="aperol">🍊</span>
+				</div>
+			</div>
+			<div style="margin-top:14px"><button id="drinkBtn">Getränk trinken</button></div>
+			<div style="margin-top:8px"><button id="closeOverlay" class="secondary">Weiter spielen</button></div>
 		</div>
 	</div>
 
@@ -144,8 +168,9 @@
 		const boardEl = document.getElementById('board');
 		const overlay = document.getElementById('overlay');
 		const clearBtn = document.getElementById('clearBtn');
-		const resetBtn = document.getElementById('resetBtn');
+		const drinkBtn = document.getElementById('drinkBtn');
 		const closeOverlay = document.getElementById('closeOverlay');
+		const toastAnimation = document.getElementById('toastAnimation');
 
 		const SIZE = 5;
 
@@ -247,7 +272,10 @@
 
 		// Events
 		clearBtn.addEventListener('click', () => { clearMarks(); hideBingo(); });
-		resetBtn.addEventListener('click', () => { resetBoard(); hideBingo(); });
+		drinkBtn.addEventListener('click', () => { 
+			toastAnimation.classList.add('show');
+			setTimeout(() => { toastAnimation.classList.remove('show'); }, 900);
+		});
 		closeOverlay.addEventListener('click', () => { hideBingo(); });
 
 		// Init
