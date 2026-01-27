@@ -71,9 +71,8 @@
 		<header>
 			<h1>Der Durst der Gefährten</h1>
 			<div class="controls">
-				<button id="fillBtn">Zufällig füllen</button>
 				<button id="clearBtn" class="secondary">Markierungen zurücksetzen</button>
-				<button id="resetBtn" class="secondary">Leeres Feld</button>
+				<button id="resetBtn" class="secondary">Neue Runde</button>
 			</div>
 		</header>
 
@@ -144,7 +143,6 @@
 
 		const boardEl = document.getElementById('board');
 		const overlay = document.getElementById('overlay');
-		const fillBtn = document.getElementById('fillBtn');
 		const clearBtn = document.getElementById('clearBtn');
 		const resetBtn = document.getElementById('resetBtn');
 		const closeOverlay = document.getElementById('closeOverlay');
@@ -244,16 +242,17 @@
 
 		function resetBoard() {
 			createEmptyBoard();
+			fillRandom();
 		}
 
 		// Events
-		fillBtn.addEventListener('click', () => { fillRandom(); hideBingo(); });
 		clearBtn.addEventListener('click', () => { clearMarks(); hideBingo(); });
 		resetBtn.addEventListener('click', () => { resetBoard(); hideBingo(); });
 		closeOverlay.addEventListener('click', () => { hideBingo(); });
 
 		// Init
 		createEmptyBoard();
+		fillRandom();
 	</script>
 </body>
 </html>
